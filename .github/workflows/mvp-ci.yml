@@ -48,7 +48,9 @@ jobs:
           extensions: mbstring, pdo, pdo_mysql
           tools: composer
       - name: Set test JWT secret
-        run: echo "JWT_SECRET=test_secret" >> $GITHUB_ENV
+        run: |
+          echo "JWT_ALG=HS256" >> $GITHUB_ENV
+          echo "JWT_SECRET=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> $GITHUB_ENV
       - name: Set test env (sqlite)
         run: |
           echo "APP_ENV=testing" >> $GITHUB_ENV
