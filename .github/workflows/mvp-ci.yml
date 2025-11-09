@@ -31,7 +31,7 @@ jobs:
       - name: Set test env
         run: echo "JWT_SECRET=test_secret" >> $GITHUB_ENV
       - name: Install deps (transaction-service)
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
         working-directory: services/transaction-service
       - name: Run tests (transaction-service)
         run: npm test
