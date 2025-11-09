@@ -11,9 +11,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+      - name: Set test env
+        run: echo "JWT_SECRET=test_secret" >> $GITHUB_ENV
       - name: Install deps (api-gateway)
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: services/api-gateway
       - name: Run tests (api-gateway)
         run: npm test
@@ -25,9 +27,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+      - name: Set test env
+        run: echo "JWT_SECRET=test_secret" >> $GITHUB_ENV
       - name: Install deps (transaction-service)
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: services/transaction-service
       - name: Run tests (transaction-service)
         run: npm test
@@ -43,6 +47,13 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, pdo, pdo_mysql
           tools: composer
+      - name: Set test JWT secret
+        run: echo "JWT_SECRET=test_secret" >> $GITHUB_ENV
+      - name: Set test env (sqlite)
+        run: |
+          echo "APP_ENV=testing" >> $GITHUB_ENV
+          echo "DB_CONNECTION=sqlite" >> $GITHUB_ENV
+          echo "DB_DATABASE=:memory:" >> $GITHUB_ENV
       - name: Install deps (user-service)
         run: composer install --no-interaction --prefer-dist
         working-directory: services/user-service
