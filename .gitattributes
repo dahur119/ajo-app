@@ -1,0 +1,25 @@
+# Normalize to LF for source files across platforms
+* text=auto eol=lf
+
+# Ensure Windows scripts and solutions keep CRLF
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+*.sln eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# Keep common archives/binaries untouched
+*.zip binary
+*.gz binary
+*.tar binary
+*.7z binary

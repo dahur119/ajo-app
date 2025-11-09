@@ -1,0 +1,51 @@
+name: MVP CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-api-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps (api-gateway)
+        run: npm ci
+        working-directory: services/api-gateway
+      - name: Run tests (api-gateway)
+        run: npm test
+        working-directory: services/api-gateway
+
+  test-transaction-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps (transaction-service)
+        run: npm ci
+        working-directory: services/transaction-service
+      - name: Run tests (transaction-service)
+        run: npm test
+        working-directory: services/transaction-service
+
+  test-user-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql
+          tools: composer
+      - name: Install deps (user-service)
+        run: composer install --no-interaction --prefer-dist
+        working-directory: services/user-service
+      - name: Run tests (user-service)
+        run: php artisan test
+        working-directory: services/user-service

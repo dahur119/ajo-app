@@ -1,0 +1,11 @@
+ vendor
+ .git
+ .gitignore
+ README.md
+ phpunit.xml
+ dockerfile
+ Dockerfile
+ .dockerignore
+ node_modules
+ storage/logs
+ tests

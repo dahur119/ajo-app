@@ -1,0 +1,96 @@
+services:
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "8080:3000"
+    environment:
+      - JWT_SECRET=your_random_jwt_secret_here_replace_with_actual
+    depends_on:
+      - user-service
+      - transaction-service
+      - investment-service
+
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=users_db
+      - DB_USERNAME=users_user
+      - DB_PASSWORD=users_password
+      - JWT_SECRET=your_random_jwt_secret_here_replace_with_actual
+
+    
+
+  transaction-service:
+    build: ./services/transaction-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - PORT=3001
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=txn_user
+      - DB_PASSWORD=txn_password
+      - DB_NAME=txn_db
+      - JWT_ALG=HS256
+      - JWT_SECRET=your_random_jwt_secret_here_replace_with_actual
+
+  investment-service:
+    build: ./services/investment-service
+    ports:
+      - "5000:5000"
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=users_db
+      - MYSQL_USER=users_user
+      - MYSQL_PASSWORD=users_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=txn_db
+      - POSTGRES_USER=txn_user
+      - POSTGRES_PASSWORD=txn_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U txn_user -d txn_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
+  pg_data:
+
+
+
+
