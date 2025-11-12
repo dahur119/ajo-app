@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'secret' => env('JWT_SECRET'),
+    // Provide a safe local default so tokens can be created in dev/test
+    'secret' => env('JWT_SECRET', 'local-dev-secret'),
     'keys' => [
         'public' => env('JWT_PUBLIC_KEY'),
         'private' => env('JWT_PRIVATE_KEY'),

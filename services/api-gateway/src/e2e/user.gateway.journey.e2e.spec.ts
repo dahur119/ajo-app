@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 // Enable by setting LIVE_E2E=true; hits running gateway which proxies to user-service
 const LIVE = process.env.LIVE_E2E === 'true';
-const GATEWAY_BASE = process.env.GATEWAY_BASE_URL || 'http://localhost:8080';
+const GATEWAY_BASE = process.env.GATEWAY_BASE_URL || 'http://localhost:3000';
 
 (LIVE ? describe : describe.skip)('User-service via API gateway (live)', () => {
   jest.setTimeout(30000);
@@ -12,15 +12,15 @@ const GATEWAY_BASE = process.env.GATEWAY_BASE_URL || 'http://localhost:8080';
     const email = `gw_${Date.now()}@example.com`;
     const password = 'Secret123!';
 
-    // Register via gateway -> proxies to user-service /api/register
+    // Register via gateway -> proxies to user-service /users/register
     const reg = await request(GATEWAY_BASE)
-      .post('/api/register')
+      .post('/users/register')
       .send({ name: 'Gateway User', email, password, password_confirmation: password });
     expect([200, 201]).toContain(reg.status);
 
-    // Login via gateway -> proxies to user-service /api/login
+    // Login via gateway -> proxies to user-service /users/login
     const login = await request(GATEWAY_BASE)
-      .post('/api/login')
+      .post('/users/login')
       .send({ email, password });
     expect(login.status).toBe(200);
     const token = login.body.token || login.body.access_token || login.body?.data?.token;

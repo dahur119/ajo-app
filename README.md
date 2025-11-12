@@ -83,6 +83,25 @@ cd services/api-gateway && npm ci && npm test
 docker compose down
 ```
 
+Investment-service e2e via gateway:
+```bash
+# Services running
+docker compose up -d
+
+# Enable live e2e and set gateway base
+export LIVE_E2E=true
+export GATEWAY_BASE_URL=http://localhost:8080
+
+# Run only investment gateway journey tests
+cd services/api-gateway
+npm ci
+npm test -- -t "Investment-service via API gateway (live)"
+
+# Note: Subscriptions/transactions flows require JWT `sub` to be a GUID.
+# If your user-service JWTs use non-GUID IDs, the test will still exercise
+# product CRUD via the gateway; subscription flows will be skipped.
+```
+
 ## Migrations
 
 User-service (MySQL):

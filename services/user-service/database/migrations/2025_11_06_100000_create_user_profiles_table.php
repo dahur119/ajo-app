@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             // One-to-one with users, cascade on delete
-            $table->foreignId('user_id')
+            $table->foreignUuid('user_id')
                 ->unique()
                 ->constrained('users')
                 ->cascadeOnDelete();

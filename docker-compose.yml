@@ -51,6 +51,11 @@ services:
     build: ./services/investment-service
     ports:
       - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - INVESTMENT_DB_CONNECTION=Host=postgres;Port=5432;Database=investment_db;Username=txn_user;Password=txn_password
 
   mysql:
     image: mysql:8.0

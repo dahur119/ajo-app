@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('/test', function () { 
+    Illuminate\Support\Facades\Log::info('API test route hit');
     return response()->json(['message' => 'API test successful']); 
 });
 
@@ -18,7 +19,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middle
 Route::post('/email/verify', [AuthController::class, 'verifyEmail'])->middleware('throttle:otp-verify');
 
 // Protected routes (require verified email)
-Route::middleware(['auth:api', \App\Http\Middleware\EnsureEmailIsVerified::class])->group(function () {
+Route::middleware(['auth:api', App\Http\Middleware\EnsureEmailIsVerified::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [\App\Http\Controllers\ProfileController::class, 'me']);
     Route::patch('/me', [\App\Http\Controllers\ProfileController::class, 'update']);

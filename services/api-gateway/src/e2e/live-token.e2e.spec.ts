@@ -17,8 +17,8 @@ const GATEWAY_BASE = process.env.GATEWAY_BASE_URL || 'http://localhost:3000';
     // Register user in user-service
     const reg = await request(USER_BASE)
       .post('/api/register')
-      .send({ name: 'E2E User', email, password });
-    expect([200, 201]).toContain(reg.status);
+      .send({ name: 'E2E User', email, password, password_confirmation: password });
+    expect(reg.status).toBe(201);
 
     // Login to get JWT
     const login = await request(USER_BASE)

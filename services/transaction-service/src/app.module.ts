@@ -12,6 +12,7 @@ import { WalletAccount } from './transfers/entities/wallet-account.entity';
 import { LedgerEntry } from './transfers/entities/ledger-entry.entity';
 import { Transfer } from './transfers/entities/transfer.entity';
 import { TransfersModule } from './transfers/transfers.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TransfersModule } from './transfers/transfers.module';
       logging: false,
     }),
     ThriftModule,
+    AuthModule,
     TransfersModule,
   ],
   controllers: [AppController],

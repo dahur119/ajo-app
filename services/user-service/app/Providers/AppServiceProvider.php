@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Config;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Local dev bootstrap: ensure sqlite database file exists and migrations are applied
+        try {
+            $default = Config::get('database.default');
+            if ($default === 'sqlite') {
+                $dbPath = database_path('database.sqlite');
+                if (!file_exists($dbPath)) {
+                    @touch($dbPath);
+                }
+                // If core tables are missing, run migrations
+                if (!Schema::hasTable('users')) {
+                    Artisan::call('migrate', ['--force' => true]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore bootstrap DB errors in dev; registration will surface real issues
+        }
+
         // Define custom rate limiters for OTP flows
         RateLimiter::for('otp-send', function (Request $request) {
             $key = strtolower((string)$request->email) . '|' . $request->ip();
