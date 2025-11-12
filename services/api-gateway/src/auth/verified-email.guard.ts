@@ -6,8 +6,9 @@ export class VerifiedEmailGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const headerVal = (req.headers?.['x-email-verified'] || req.headers?.['X-Email-Verified']) as string | undefined;
     const viaHeader = headerVal === 'true';
+    const viaClaim = !!req.user?.emailVerified;
 
-    if (viaHeader) {
+    if (viaHeader || viaClaim) {
       return true;
     }
 
