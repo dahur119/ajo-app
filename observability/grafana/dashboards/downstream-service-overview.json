@@ -1,0 +1,56 @@
+{
+  "title": "Downstream Service – Overview",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "service_host",
+        "label": "Service Host",
+        "datasource": "Prometheus",
+        "query": "label_values(http_outbound_requests_total, host)",
+        "refresh": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Outbound Rate to $service_host (req/s)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_outbound_requests_total{host=\"$service_host\"}[5m]))"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound P95 Latency to $service_host (s)",
+      "gridPos": { "x": 8, "y": 0, "w": 16, "h": 6 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_outbound_duration_seconds_bucket{host=\"$service_host\"}[5m])))"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound Requests by Path (req/s)",
+      "gridPos": { "x": 0, "y": 6, "w": 24, "h": 8 },
+      "legend": { "show": true },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_outbound_requests_total{host=\"$service_host\"}[5m])) by (path)"
+        }
+      ]
+    }
+  ]
+}

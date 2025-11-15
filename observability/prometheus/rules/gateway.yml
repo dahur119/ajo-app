@@ -1,0 +1,29 @@
+groups:
+  - name: gateway_alerts
+    rules:
+      - alert: ServiceNotReady
+        expr: gateway_service_ready == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service not ready"
+          description: "Gateway reports service {{ $labels.service }} not ready."
+
+      - alert: InboundErrorSpike
+        expr: (sum(rate(http_response_class_total{status_class="5xx"}[5m])) / sum(rate(http_response_class_total[5m]))) > 0.02
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Inbound error rate high"
+          description: "5xx ratio above 2% in the last 10m."
+
+      - alert: OutboundLatencyHigh
+        expr: histogram_quantile(0.95, sum by (le) (rate(http_outbound_duration_seconds_bucket[5m]))) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbound p95 latency high"
+          description: "Outbound p95 latency above 800ms in the last 10m."

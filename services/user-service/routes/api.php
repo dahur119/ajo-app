@@ -9,6 +9,25 @@ Route::get('/test', function () {
     return response()->json(['message' => 'API test successful']); 
 });
 
+// Health and readiness with correlation echo
+Route::get('/health', function (Request $request) {
+    $requestId = $request->header('x-request-id') ?: (string) \Illuminate\Support\Str::uuid();
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+        'requestId' => $requestId,
+    ])->header('x-request-id', $requestId);
+});
+
+Route::get('/ready', function (Request $request) {
+    $requestId = $request->header('x-request-id') ?: (string) \Illuminate\Support\Str::uuid();
+    return response()->json([
+        'ready' => true,
+        'timestamp' => now()->toIso8601String(),
+        'requestId' => $requestId,
+    ])->header('x-request-id', $requestId);
+});
+
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

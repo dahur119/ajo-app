@@ -33,6 +33,19 @@ app.post('/api/login', (req, res) => {
   return res.status(200).json({ token });
 });
 
+// Health and readiness endpoints with correlation echo
+app.get('/health', (req, res) => {
+  const requestId = req.header('x-request-id') || crypto.randomUUID();
+  res.set('x-request-id', requestId);
+  return res.status(200).json({ status: 'ok', timestamp: new Date().toISOString(), requestId });
+});
+
+app.get('/ready', (req, res) => {
+  const requestId = req.header('x-request-id') || crypto.randomUUID();
+  res.set('x-request-id', requestId);
+  return res.status(200).json({ ready: true, timestamp: new Date().toISOString(), requestId });
+});
+
 app.listen(PORT, () => {
   console.log(`[user-stub] listening on http://localhost:${PORT}`);
 });

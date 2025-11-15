@@ -21,6 +21,60 @@ jobs:
         run: npm test
         working-directory: services/api-gateway
 
+  test-api-gateway-e2e-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps (api-gateway)
+        run: npm ci --legacy-peer-deps
+        working-directory: services/api-gateway
+      - name: Start stubs and gateway; run live e2e
+        run: |
+          # Start local stubs in background
+          npm run start:stubs &
+          npx wait-on --timeout 30000 tcp:8085 tcp:8086 tcp:8087
+
+          # Assert stub health endpoints return ok and include x-request-id header
+          curl -s -H "x-request-id: ci-stub-check" -D /tmp/user.headers http://localhost:8085/health -o /tmp/user.json
+          grep -i 'x-request-id' /tmp/user.headers
+          grep -q '"status"\s*:\s*"ok"' /tmp/user.json
+
+          curl -s -H "x-request-id: ci-stub-check" -D /tmp/txn.headers http://localhost:8086/health -o /tmp/txn.json
+          grep -i 'x-request-id' /tmp/txn.headers
+          grep -q '"status"\s*:\s*"ok"' /tmp/txn.json
+
+          curl -s -H "x-request-id: ci-stub-check" -D /tmp/inv.headers http://localhost:8087/health -o /tmp/inv.json
+          grep -i 'x-request-id' /tmp/inv.headers
+          grep -q '"status"\s*:\s*"ok"' /tmp/inv.json
+
+          # Start gateway in background with stub overrides
+          LIVE_E2E=true \
+          JWT_SECRET=test_secret \
+          USER_BASE_URL=http://localhost:8085 \
+          TXN_BASE_URL=http://localhost:8086 \
+          INVESTMENT_BASE_URL=http://localhost:8087 \
+          npm run start:dev &
+
+          # Wait for gateway to be ready
+          npx wait-on --timeout 30000 tcp:3000
+
+          # Assert health endpoint returns status ok and includes x-request-id header
+          curl -s -D /tmp/health.headers http://localhost:3000/health -o /tmp/health.json
+          grep -i 'x-request-id' /tmp/health.headers
+          grep -q '"status"\s*:\s*"ok"' /tmp/health.json
+
+          # Assert readiness endpoint returns ready:true and includes x-request-id header
+          curl -s -H "x-request-id: ci-ready-check" -D /tmp/ready.headers http://localhost:3000/ready -o /tmp/ready.json
+          grep -i 'x-request-id' /tmp/ready.headers
+          grep -q '"ready"\s*:\s*true' /tmp/ready.json
+
+          # Run e2e tests against live gateway
+          npm run test:e2e
+        working-directory: services/api-gateway
+
   test-transaction-service:
     runs-on: ubuntu-latest
     steps:
@@ -62,3 +116,21 @@ jobs:
       - name: Run tests (user-service)
         run: php artisan test
         working-directory: services/user-service
+
+  test-investment-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies (investment-service)
+        run: dotnet restore investment-service.sln
+        working-directory: services/investment-service
+      - name: Build (investment-service)
+        run: dotnet build investment-service.sln --configuration Release --no-restore
+        working-directory: services/investment-service
+      - name: Run tests (investment-service)
+        run: dotnet test investment-service.sln --configuration Release --no-build --verbosity normal
+        working-directory: services/investment-service

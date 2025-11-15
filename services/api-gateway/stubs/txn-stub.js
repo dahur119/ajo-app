@@ -49,6 +49,19 @@ app.get('/cycles/:id/status', (req, res) => {
   return res.status(200).json({ id, status: c.status });
 });
 
+// Health and readiness endpoints with correlation echo
+app.get('/health', (req, res) => {
+  const requestId = req.header('x-request-id') || crypto.randomUUID();
+  res.set('x-request-id', requestId);
+  return res.status(200).json({ status: 'ok', timestamp: new Date().toISOString(), requestId });
+});
+
+app.get('/ready', (req, res) => {
+  const requestId = req.header('x-request-id') || crypto.randomUUID();
+  res.set('x-request-id', requestId);
+  return res.status(200).json({ ready: true, timestamp: new Date().toISOString(), requestId });
+});
+
 app.listen(PORT, () => {
   console.log(`[txn-stub] listening on http://localhost:${PORT}`);
 });

@@ -6,7 +6,7 @@ import jwksRsa from 'jwks-rsa';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    const alg = (process.env.JWT_ALG || 'HS256').toUpperCase();
+    const alg = (process.env.JWT_ALG || 'RS256').toUpperCase();
 
     const base = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -42,6 +42,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       emailVerified: !!payload.email_verified_at,
       issuer: payload.iss,
       audience: payload.aud,
+      roles: payload.roles || payload.scope || payload.scopes,
     };
   }
 }

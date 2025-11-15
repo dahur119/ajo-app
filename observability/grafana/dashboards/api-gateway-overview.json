@@ -1,0 +1,134 @@
+{
+  "title": "API Gateway Overview",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Request Rate (req/s)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_requests_total[5m]))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "4xx / 5xx Rates",
+      "gridPos": { "x": 8, "y": 0, "w": 16, "h": 6 },
+      "legend": { "show": true },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_response_class_total{status_class=\"4xx\"}[5m]))" },
+        { "refId": "B", "expr": "sum(rate(http_response_class_total{status_class=\"5xx\"}[5m]))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Inbound P95 Latency (s)",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound P95 Latency (s)",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 6 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.95, sum by (le) (rate(http_outbound_duration_seconds_bucket[5m])))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound Requests by Host (req/s)",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 8 },
+      "legend": { "show": true },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_outbound_requests_total[5m])) by (host)" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Gateway Ready (overall)",
+      "gridPos": { "x": 0, "y": 20, "w": 6, "h": 4 },
+      "targets": [
+        { "refId": "A", "expr": "max(gateway_ready_overall)" }
+      ]
+    }
+  ]
+}
+  "title": "API Gateway Overview",
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Request Rate (req/s)",
+      "gridPos": {"x": 0, "y": 0, "w": 8, "h": 6},
+      "targets": [{
+        "expr": "sum(rate(http_requests_total[5m]))",
+        "legendFormat": "req/s"
+      }]
+    },
+    {
+      "type": "timeseries",
+      "title": "4xx / 5xx Rates",
+      "gridPos": {"x": 8, "y": 0, "w": 16, "h": 6},
+      "targets": [
+        {"expr": "sum(rate(http_requests_total{status=~\"4..\"}[5m]))", "legendFormat": "4xx"},
+        {"expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m]))", "legendFormat": "5xx"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "P95 Latency (s)",
+      "gridPos": {"x": 0, "y": 6, "w": 12, "h": 8},
+      "targets": [{
+        "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+        "legendFormat": "p95"
+      }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound P95 Latency (s)",
+      "gridPos": {"x": 12, "y": 6, "w": 12, "h": 8},
+      "targets": [{
+        "expr": "histogram_quantile(0.95, sum by (le) (rate(http_outbound_duration_seconds_bucket[5m])))",
+        "legendFormat": "p95 outbound"
+      }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbound Requests by Host (req/s)",
+      "gridPos": {"x": 0, "y": 14, "w": 12, "h": 8},
+      "targets": [{
+        "expr": "sum(rate(http_outbound_requests_total[5m])) by (host)",
+        "legendFormat": "{{host}}"
+      }]
+    },
+    {
+      "type": "gauge",
+      "title": "Gateway Ready",
+      "gridPos": {"x": 12, "y": 14, "w": 6, "h": 8},
+      "targets": [{
+        "expr": "gateway_ready_overall",
+        "legendFormat": "ready"
+      }],
+      "fieldConfig": {"defaults": {"min": 0, "max": 1}}
+    },
+    {
+      "type": "timeseries",
+      "title": "Service Readiness",
+      "gridPos": {"x": 18, "y": 14, "w": 6, "h": 8},
+      "targets": [{
+        "expr": "gateway_service_ready",
+        "legendFormat": "{{service}}"
+      }],
+      "fieldConfig": {"defaults": {"min": 0, "max": 1}}
+    }
+  ]
+}
